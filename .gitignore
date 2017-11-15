@@ -32,3 +32,6 @@ distrib/
 
 # Debug files
 *.dSYM/
+
+#documentation
+*.html
