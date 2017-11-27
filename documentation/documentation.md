@@ -45,6 +45,7 @@ In each sample directory, you'll find a **Makefile** file with these fields :
 |	**PROJECT**			|&nbsp;&nbsp;&nbsp;  	the project directory		|
 |	**BOARD**			|&nbsp;&nbsp;&nbsp;  	the board used for this project		|
 |	**OUT_PWD**			|&nbsp;&nbsp;&nbsp;  	the directory where the compiled files are put into		|
+
 Change them to suit your needs
 
 
