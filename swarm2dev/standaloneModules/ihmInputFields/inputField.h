@@ -11,24 +11,24 @@ void ihm_init();
 
 typedef enum
 {
-	ip_adress,
-	number,
-	alpha_numeric
-	
+    ip_adress,
+    number,
+    alpha_numeric
+
 } input_type;
 
 //input field struct
 typedef struct
 {
-	char *title;
-	char *textTyped;
-	input_type field_type;
-	int8_t is_frozen;
+    char *title;
+    char *textTyped;
+    input_type field_type;
+    int8_t is_frozen;
 } input_field;
 
 typedef enum
 {
-	false,true
+    false,true
 } bool;
 
 void input_field_set_title(input_field *input ,char *inputField_title);
