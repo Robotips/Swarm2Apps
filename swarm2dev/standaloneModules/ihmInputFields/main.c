@@ -18,7 +18,7 @@ int main(void)
 	input_field wifi_input_field;
 	
 	input_field_set_title(&wifi_input_field,title);
-	input_field_set_type(&wifi_input_field,alpha_numeric);
+	input_field_set_type(&wifi_input_field,ip_adress);
 	
 	show_input_field(&wifi_input_field,textToGet);
 	//Main loop
