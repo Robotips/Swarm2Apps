@@ -17,15 +17,15 @@
 ### Get
 - /laserrangefinders
 - /laserrangefinders/{id}
-
+***
 
 - /traveldistances
 - /traveldistances/{wheelid}
-
+***
 
 - /accelerations
 - /accelerations/{axesid}
-
+***
 
 - /rotaryencoderpositions
 - /rotaryencoderpositions/{id}
