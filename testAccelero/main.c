@@ -7,8 +7,8 @@
 #include "archi.h"
 #include "fonts.h"
 #include "driver/i2c.h"
-#include "../../support/module/sensor/driver/lsm6ds3/lsm6ds3.h"
-#include "../../support/module/sensor/driver/lsm6ds3/lsm6ds3_registers.h"
+#include "../rtprog/support/module/sensor/driver/lsm6ds3/lsm6ds3.h"
+#include "../rtprog/support/module/sensor/driver/lsm6ds3/lsm6ds3_registers.h"
 
 char led=0;
 
