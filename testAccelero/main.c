@@ -24,26 +24,14 @@ void clearScreen()
 
 int main(void)
 {
-    uint16_t i, j, h;
-    uint16_t value;
+    uint16_t i;
     char buffer[100];
     rt_dev_t uartDbg;
     rt_dev_t i2c_bus;
     int16_t acc[3];
 
-    //init accelerometer
-    i2c_bus = i2c(4);
-	i2c_open(i2c_bus);
-	i2c_setBaudSpeed(i2c_bus, I2C_BAUD_400K);
-	i2c_setAddressWidth(i2c_bus, 7);
-	i2c_enable(i2c_bus);
-
-    archi_init();
-    //sysclock_setClock(200000000);
-    sysclock_setClockDiv(SYSCLOCK_CLOCK_TIMER, 16);
-    sysclock_setClockDiv(SYSCLOCK_CLOCK_UART, 16);
-
     board_init();
+    //sysclock_setClock(200000000);
 
     //board_setLed(1, 1);
 
@@ -95,9 +83,15 @@ int main(void)
     gui_drawText(15,21,"Terminer !");
     gui_ctrl_update();*/
 
-    int test = i2c_writereg(i2c_bus, 0x6B, LSM6DS3_CTRL1_XL, 0b00100000, 0);
-
 #endif
+
+    //init accelerometer
+    i2c_bus = i2c(4);
+	i2c_open(i2c_bus);
+	i2c_setBaudSpeed(i2c_bus, I2C_BAUD_400K);
+	i2c_setAddressWidth(i2c_bus, 7);
+	i2c_enable(i2c_bus);
+    i2c_writereg(i2c_bus, 0xD6, LSM6DS3_CTRL1_XL, 0b00100000, 0);
 
     while(1)
     {
@@ -107,16 +101,14 @@ int main(void)
         
         cmdline_task();
 
-        board_setLed(2, 1);
-        for(j=0; j<5; j++) for(i=0; i<65000; i++);
-        board_setLed(2, 0);
-        for(j=0; j<5; j++) for(i=0; i<65000; i++);
+        board_toggleLed(2);
+        for(i=0; i<65000; i++);
 
-        //acc[0] = 0;
-	    int a = i2c_readregs(i2c_bus, 0x6B, LSM6DS3_OUTX_L_XL, (uint8_t*)acc, 6, 0);
+        acc[0] = 0;
+	    i2c_readregs(i2c_bus, 0xD6, LSM6DS3_OUTX_L_XL, (uint8_t*)acc, 6, 0);
 
 		sprintf(buffer, "%d", acc[0]);
-		gui_drawText(0,10,buffer);
+		gui_drawTextRect(0, 10, 50, 20, buffer, 0);
 		gui_ctrl_update();
     }
 
