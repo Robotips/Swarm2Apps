@@ -127,6 +127,21 @@ typedef enum
 } ESP8266_CMD;
 volatile ESP8266_CMD esp8266_currentCmd = ESP8266_CMD_NONE;
 
+typedef enum
+{
+    ESP8266_CONFIG_NONE,
+    ESP8266_CONFIG_DONE
+}ESP8266_CONFIG;
+volatile ESP8266_CONFIG esp8266_config_state = ESP8266_CONFIG_NONE;
+
+typedef enum
+{
+    ESP8266_STATE_SEND_READY,
+    ESP8266_STATE_SEND_ERROR,
+    ESP826_STATE_ON_SENDING
+}ESP8266_STATE_SEND;
+volatile ESP8266_STATE_SEND esp8266_state_sending = ESP8266_STATE_SEND_READY;
+
 uint8_t esp8266_config = 0;
 
 void esp8266_parse(char rec);
