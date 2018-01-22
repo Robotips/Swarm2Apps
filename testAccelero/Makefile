@@ -10,7 +10,7 @@ OUT_PWD = build
 DRIVERS += sysclock uart i2c timer gpio
 MODULES += gui cmdline
 
-FONTS += Lucida_Console10
+FONTS += Lucida_Console8
 
 SRC += main.c
 
