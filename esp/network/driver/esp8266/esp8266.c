@@ -713,7 +713,7 @@ void esp8266_send_cmddat(char data[], uint16_t size)
  * @brief Opens a TCP socket
  * @param ip_domain destination IP or domain
  * @param port destinantion port
- * @return 0 if OK
+ * @return socket id
  */
 uint8_t esp8266_open_tcp_socket(char *ip_domain, uint16_t port)
 {
@@ -729,7 +729,7 @@ uint8_t esp8266_open_tcp_socket(char *ip_domain, uint16_t port)
 
     esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
     esp8266_currentCmd = ESP8266_CMD_OPENTCP;
-    return 0; // TODO return sock id
+    return esp8266_getRecSocket();
 }
 
 /**
@@ -737,7 +737,7 @@ uint8_t esp8266_open_tcp_socket(char *ip_domain, uint16_t port)
  * @param ip_domain destination IP or domain
  * @param port destinantion port
  * @param localPort local port
- * @return 0 if OK
+ * @return socket id
  */
 uint8_t esp8266_open_udp_socket(char *ip_domain, uint16_t port,
                                 uint16_t localPort)
@@ -756,7 +756,7 @@ uint8_t esp8266_open_udp_socket(char *ip_domain, uint16_t port,
 
     esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
     esp8266_currentCmd = ESP8266_CMD_OPENUDP;
-    return 0; // TODO return sock id
+    return esp8266_getRecSocket();
 }
 
 /**
