@@ -31,6 +31,7 @@ int main(void)
     rt_dev_t uartDbg;
     rt_dev_t i2c_bus;
     int16_t acc[3];
+    int16_t gyro[3];
 
     board_init();
     //sysclock_setClock(200000000);
@@ -76,6 +77,7 @@ int main(void)
 	i2c_setAddressWidth(i2c_bus, 7);
 	i2c_enable(i2c_bus);
     i2c_writereg(i2c_bus, 0xD6, LSM6DS3_CTRL1_XL, 0b00100000, 0); //Accel
+    i2c_writereg(i2c_bus, 0xD6, LSM6DS3_CTRL2_G,  0b00100000, 0); //Gyro
 
     while(1)
     {
@@ -88,12 +90,13 @@ int main(void)
         board_toggleLed(2);
         for(i=0; i<65000; i++);
 
-	    i2c_readregs(i2c_bus, 0xD6, LSM6DS3_OUTX_L_XL, (uint8_t*)acc, 6, 0); //Accel
+	    i2c_readregs(i2c_bus, 0xD6, LSM6DS3_OUTX_L_XL, (uint8_t*)acc, 6, 0); //accelerometer
+        i2c_readregs(i2c_bus, 0xD6, LSM6DS3_OUTX_L_G, (uint8_t*)gyro, 6, 0); //Gyro
 
 		//write the value of the acc/gyro in buffer's variables
-		sprintf(buffer, "X : %d", acc[0]);  //Axe x
-		sprintf(bufferB, "Y : %d", acc[1]); //Axe y
-		sprintf(bufferT, "Z : %d", acc[2]); //Axe z
+		sprintf(buffer, "X : %d", gyro[0]);  //Axe x
+		sprintf(bufferB, "Y : %d", gyro[1]); //Axe y
+		sprintf(bufferT, "Z : %d", gyro[2]); //Axe z
 
 		//write on the screen the values
 		gui_drawTextRect(0, 10, 120, 20, buffer, 0);
