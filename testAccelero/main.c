@@ -34,7 +34,6 @@ int main(void)
 
     board_init();
     //sysclock_setClock(200000000);
-
     //board_setLed(1, 1);
 
     gui_init(0);
@@ -68,23 +67,6 @@ int main(void)
     gui_setBrushColor(0);
     gui_setPenColor(1);
 
-    /*gui_drawLine(0, 15, 127, 15);
-    gui_setBrushColor(1);
-    gui_drawFillRect(12, 12, 26, 12);*/
-
-    //Test function to write on the screen
-    /*for (h=0; h <= 999; h++)
-    {
-        sprintf(buffer,"Indice : %d", h);
-        for (j = 0; j < 10; j++) for (i = 0; i < 65000; i++);
-        clearScreen();
-        gui_drawText(0,10,buffer);
-        gui_ctrl_update();
-    }
-    clearScreen();
-    gui_drawText(15,21,"Terminer !");
-    gui_ctrl_update();*/
-
 #endif
 
     //init accelerometer and gyroscope
@@ -108,8 +90,16 @@ int main(void)
 
 	    i2c_readregs(i2c_bus, 0xD6, LSM6DS3_OUTX_L_XL, (uint8_t*)acc, 6, 0); //Accel
 
-		sprintf(buffer, "[0] : %d", acc[0]);
+		//write the value of the acc/gyro in buffer's variables
+		sprintf(buffer, "X : %d", acc[0]);  //Axe x
+		sprintf(bufferB, "Y : %d", acc[1]); //Axe y
+		sprintf(bufferT, "Z : %d", acc[2]); //Axe z
+
+		//write on the screen the values
 		gui_drawTextRect(0, 10, 120, 20, buffer, 0);
+		gui_drawTextRect(0, 25, 120, 20, bufferB, 0);
+		gui_drawTextRect(0, 40, 120, 20, bufferT, 0);
+
 		gui_ctrl_update();
     }
 
