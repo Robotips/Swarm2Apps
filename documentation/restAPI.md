@@ -40,3 +40,8 @@
 ### Post
 - /rgbleds
 - /rgbleds/{id}
+
+
+## Status:
+### Get
+- /batterylevel
