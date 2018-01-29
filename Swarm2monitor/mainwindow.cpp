@@ -4,8 +4,8 @@ MainWindow::MainWindow(UserData *userData, QWidget *parent) : QMainWindow(parent
 {
     userDataRef = userData;
 
-    robotIpModal = new RobotIpModal(userData, this);
     settingsDialog = new SettingsDialog(this);
+    createSettingsDialog();
 
     createInfoSection();
     robotInterface.setStdr(logWidget);
@@ -23,6 +23,12 @@ MainWindow::MainWindow(UserData *userData, QWidget *parent) : QMainWindow(parent
 MainWindow::~MainWindow()
 {
 
+}
+
+void MainWindow::createSettingsDialog()
+{
+    QTabWidget *ref = settingsDialog->addCategory(tr("Robot configuration"));
+    ref->addTab(new RobotIpModal(userDataRef,settingsDialog),tr("Robot ip adress"));
 }
 
 void MainWindow::createInfoSection()
@@ -208,10 +214,6 @@ void MainWindow::createActionSection()
 
 void MainWindow::createActions()
 {
-    robotAddrAct = new QAction(tr("&Robot ip"),this);
-    robotAddrAct->setStatusTip(tr("Set robot ip address"));
-    connect(robotAddrAct,  &QAction::triggered, this, &MainWindow::setIpAdress);
-
     settingsAct = new QAction(tr("&Settings"), this);
     settingsAct->setStatusTip(tr("Open settings"));
     connect(settingsAct, &QAction::triggered, this, &MainWindow::openSettingsSlot);
@@ -235,7 +237,6 @@ void MainWindow::createActions()
 void MainWindow::createMenuBar()
 {
     option = menuBar()->addMenu(tr("&Option"));
-    option->addAction(robotAddrAct);
     option->addAction(settingsAct);
 
     view = menuBar()->addMenu(tr("&View"));
@@ -247,18 +248,11 @@ void MainWindow::createMenuBar()
     help->addAction(about);
 }
 
-void MainWindow::setIpAdress()
-{
-    //Here, we display de modal window to set the ip adress.
-    robotIpModal->exec();
-
-    //We set new ipAdress for the robotInterface
-    robotInterface.setRobotIpAndPort(userDataRef->getIpAddr(), userDataRef->getPort());
-}
-
 void MainWindow::openSettingsSlot()
 {
     settingsDialog->exec();
+    //We set new ipAdress for the robotInterface
+    robotInterface.setRobotIpAndPort(userDataRef->getIpAddr(), userDataRef->getPort());
 }
 
 void MainWindow::aboutFunc()

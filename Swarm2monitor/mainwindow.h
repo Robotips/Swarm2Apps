@@ -29,7 +29,6 @@ class MainWindow : public QMainWindow
         ~MainWindow();
 
     private slots:
-        void setIpAdress();
         void openSettingsSlot();
         void aboutFunc();
         void connectToRobot();
@@ -59,7 +58,6 @@ class MainWindow : public QMainWindow
         QMenu *view;
         QMenu *help;
 
-        QAction *robotAddrAct;
         QAction *settingsAct;
         QAction *about;
 
@@ -134,6 +132,7 @@ class MainWindow : public QMainWindow
         void createActions();
         void createInfoSection();
         void createActionSection();
+        void createSettingsDialog();
 
         void keyPressEvent(QKeyEvent *event);
 

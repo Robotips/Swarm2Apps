@@ -78,6 +78,9 @@ void RobotInterface::replyFinishedHandler()
 
 //Tof API PART
 
+/**
+ * @brief RobotInterface::queryRestApiTof
+ */
 void RobotInterface::queryRestApiTof()
 {
     QUrl url;
@@ -85,12 +88,17 @@ void RobotInterface::queryRestApiTof()
 
     replyTof = netAccMan.get(QNetworkRequest(url));
 
+
     //We connect the reply error signal
     //Would be great to add a custom timout
     QObject::connect(replyTof, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &RobotInterface::replyTofErrorHandler);
     QObject::connect(replyTof, &QNetworkReply::finished, this, &RobotInterface::getRestApiQueryTofResult);
 }
 
+/**
+ * @brief RobotInterface::replyTofErrorHandler
+ * @param code
+ */
 void RobotInterface::replyTofErrorHandler(QNetworkReply::NetworkError code)
 {
     if(replyTof != Q_NULLPTR)

@@ -13,7 +13,7 @@
 
 #include "userdata.h"
 
-class RobotIpModal : public QDialog
+class RobotIpModal : public QWidget
 {
     Q_OBJECT
 

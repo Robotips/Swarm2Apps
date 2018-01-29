@@ -1,6 +1,6 @@
 #include "robotipmodal.h"
 
-RobotIpModal::RobotIpModal(UserData *userData, QWidget *parent) : QDialog(parent)
+RobotIpModal::RobotIpModal(UserData *userData, QWidget *parent) : QWidget(parent)
 {
     this->userData = userData;
 
@@ -44,7 +44,6 @@ void RobotIpModal::saveAddr()
     //We save the data and close the modal window
     userData->setIpAddr(ipAdressIF->text());
     userData->setPort(portIF->text().toUInt());
-    close();
 }
 
 void RobotIpModal::cancelFunc()
@@ -52,7 +51,5 @@ void RobotIpModal::cancelFunc()
     //We put the old values back
     ipAdressIF->setText(userData->getIpAddr());
     portIF->setText(QString::number(userData->getPort()));
-
-    close();
 }
 

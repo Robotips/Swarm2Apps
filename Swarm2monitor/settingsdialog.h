@@ -14,7 +14,11 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
     public:
+        //Constructor
         SettingsDialog(QWidget *parent = Q_NULLPTR);
+
+        //This method creates a new category and returns a pointer pointing on the tabwidget associated with it
+        QTabWidget *addCategory(QString const &title);
 
     private:
         QHBoxLayout *mainHBOXLayout;
