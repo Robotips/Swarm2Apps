@@ -741,23 +741,27 @@ void esp8266_send_cmddat(char data[], uint16_t size)
  * @brief Opens a TCP socket
  * @param ip_domain destination IP or domain
  * @param port destinantion port
- * @return socket id
+ * @return -1 if error, 0 if OK
  */
 uint8_t esp8266_open_tcp_socket(char *ip_domain, uint16_t port)
 {
     char protected[64];
+    if (esp8266_currentCmd == ESP8266_STATE_NONE)
+    { 
+        (&esp8266_txBuff);
+        buffer_astring(&esp8266_txBuff, "AT+CIPSTART=\"TCP\",\"");
 
-    buffer_clear(&esp8266_txBuff);
-    buffer_astring(&esp8266_txBuff, "AT+CIPSTART=\"TCP\",\"");
-
-    esp8266_protectstr(protected, ip_domain);
-    buffer_astring(&esp8266_txBuff, protected);
-    buffer_astring(&esp8266_txBuff, "\",");
-    buffer_aint(&esp8266_txBuff, port);
-
-    esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
-    esp8266_currentCmd = ESP8266_CMD_OPENTCP;
-    return esp8266_getRecSocket();
+        esp8266_protectstr(protected, ip_domain);
+        buffer_astring(&esp8266_txBuff, protected);
+        buffer_astring(&esp8266_txBuff, "\",");
+        buffer_aint(&esp8266_txBuff, port);
+    
+        esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
+        esp8266_currentCmd = ESP8266_CMD_OPENTCP;
+        return 0;
+    }
+    else
+        return -1;
 }
 
 /**
@@ -765,26 +769,30 @@ uint8_t esp8266_open_tcp_socket(char *ip_domain, uint16_t port)
  * @param ip_domain destination IP or domain
  * @param port destinantion port
  * @param localPort local port
- * @return socket id
+ * @return -1 if error, 0 if OK
  */
 uint8_t esp8266_open_udp_socket(char *ip_domain, uint16_t port,
                                 uint16_t localPort)
 {
     char protected[64];
+    if (esp8266_currentCmd == ESP8266_STATE_NONE)
+    { 
+        buffer_clear(&esp8266_txBuff);
+        buffer_astring(&esp8266_txBuff, "AT+CIPSTART=\"UDP\",\"");
 
-    buffer_clear(&esp8266_txBuff);
-    buffer_astring(&esp8266_txBuff, "AT+CIPSTART=\"UDP\",\"");
+        esp8266_protectstr(protected, ip_domain);
+        buffer_astring(&esp8266_txBuff, protected);
+        buffer_astring(&esp8266_txBuff, "\",");
+        buffer_aint(&esp8266_txBuff, (int)port);
+        buffer_achar(&esp8266_txBuff, ',');
+        buffer_aint(&esp8266_txBuff, (int)localPort);
 
-    esp8266_protectstr(protected, ip_domain);
-    buffer_astring(&esp8266_txBuff, protected);
-    buffer_astring(&esp8266_txBuff, "\",");
-    buffer_aint(&esp8266_txBuff, (int)port);
-    buffer_achar(&esp8266_txBuff, ',');
-    buffer_aint(&esp8266_txBuff, (int)localPort);
-
-    esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
-    esp8266_currentCmd = ESP8266_CMD_OPENUDP;
-    return esp8266_getRecSocket();
+        esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
+        esp8266_currentCmd = ESP8266_CMD_OPENUDP;
+        return 0;
+    }
+    else
+        return -1;
 }
 
 /**
