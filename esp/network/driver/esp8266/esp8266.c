@@ -1,4 +1,4 @@
-/**
+ /**
  * @file esp8266.c
  * @author Sebastien CAUX (sebcaux)
  * @copyright Robotips 2016-2017
@@ -25,6 +25,10 @@ uint16_t esp8266_sizePacket = 0;
 uint16_t esp8266_idPacket = 0;
 uint8_t esp8266_flagPacket = 0;
 char /*__attribute__((far))*/ esp8266_dataPacket[2049];
+
+char esp8266_sendData[2049];
+uint16_t esp8266_sizeSendPacket = 0;
+ssize_t size_Data_send = 0;
 
 // station IP
 char esp8266_ip[16] = "";
@@ -121,6 +125,8 @@ typedef enum
     ESP8266_CMD_DISCONNECTAP,
     ESP8266_CMD_CLOSESOCKET,
     ESP8266_CMD_WRITESOCK_REQ,
+    ESP8266_CMD_WRITESOCK,
+    ESP8266_CMD_ERROR,
     ESP8266_CMD_WRITESOCK_DATA,
     ESP8266_CMD_SERVERCREATE,
     ESP8266_CMD_SERVERDESTROY
@@ -133,14 +139,6 @@ typedef enum
     ESP8266_CONFIG_DONE
 }ESP8266_CONFIG;
 volatile ESP8266_CONFIG esp8266_config_state = ESP8266_CONFIG_NONE;
-
-typedef enum
-{
-    ESP8266_STATE_SEND_READY,
-    ESP8266_STATE_SEND_ERROR,
-    ESP826_STATE_ON_SENDING
-}ESP8266_STATE_SEND;
-volatile ESP8266_STATE_SEND esp8266_state_sending = ESP8266_STATE_SEND_READY;
 
 uint8_t esp8266_config = 0;
 
@@ -197,45 +195,75 @@ void esp8266_task()
         }
     }
 
-    // send base configuration (begining only)
-    if ((esp8266_config >> 1) < 7)
+	// send base configuration (begining only)
+    if (esp8266_config_state == ESP8266_CONFIG_NONE)
     {
-        if (esp8266_config & 0x01)
+        if ((esp8266_config >> 1) < 7)
         {
-            if (esp8266_state != ESP8266_STATE_NONE)
-            {
-                esp8266_config++;
-                esp8266_state = ESP8266_STATE_NONE;
-            }
-        }
-        else
+	        if (esp8266_config & 0x01)
+	        {
+	            if (esp8266_state != ESP8266_STATE_NONE)
+	            {
+	                esp8266_config++;
+	                esp8266_state = ESP8266_STATE_NONE;
+	            }
+	        }
+	        else
+	        {
+	            switch (esp8266_config >> 1)
+	            {
+	            case 0:
+	                esp8266_send_cmd("ATE1\r\n");
+	                break;
+	            case 1:
+	                esp8266_send_cmd("AT+CIPMUX=1\r\n");
+	                break;
+	            case 2:
+	                esp8266_setMode(ESP8266_MODE_STA_AP);
+	                break;
+	            case 3:
+	                esp8266_connect_ap("iotRT", "iotwifiA");
+	                break;
+	            case 4:
+	                esp8266_ap_setConfig("rtnet", "pwd2017A", ESP8266_ECN_WPA2, 5);
+	                break;
+	            case 5:
+	                esp8266_server_create(80);
+	                break;
+	            case 6:
+	                esp8266_send_cmd("AT+CIFSR\r\n");
+	                break;
+	            }
+	            esp8266_config++;
+	        }
+	    }
+        esp8266_config_state = ESP8266_CONFIG_DONE;
+    }
+
+    switch (esp8266_currentCmd)
+    {
+    case ESP8266_CMD_ERROR:
+        exit(-1);
+        break;
+    case ESP8266_CMD_WRITESOCK_DATA:
+        if( esp8266_state == ESP8266_STATE_OK)
         {
-            switch (esp8266_config >> 1)
-            {
-            case 0:
-                esp8266_send_cmd("ATE1\r\n");
-                break;
-            case 1:
-                esp8266_send_cmd("AT+CIPMUX=1\r\n");
-                break;
-            case 2:
-                esp8266_setMode(ESP8266_MODE_STA_AP);
-                break;
-            case 3:
-                esp8266_connect_ap("iotRT", "iotwifiA");
-                break;
-            case 4:
-                esp8266_ap_setConfig("rtnet", "pwd2017A", ESP8266_ECN_WPA2, 5);
-                break;
-            case 5:
-                esp8266_server_create(80);
-                break;
-            case 6:
-                esp8266_send_cmd("AT+CIFSR\r\n");
-                break;
-            }
-            esp8266_config++;
+            esp8266_currentCmd = ESP8266_CMD_NONE;
         }
+        break;
+    case ESP8266_CMD_WRITESOCK_REQ:
+        if (esp8266_state == ESP8266_STATE_SEND_OK)
+        {
+            esp8266_currentCmd = ESP8266_CMD_WRITESOCK;
+        }
+        break;
+    case ESP8266_CMD_WRITESOCK :
+        if ( size_Data_send > 0 )
+        {
+        }
+        size_Data_send += uart_write(esp8266_uart,esp8266_sendData, esp8266_sizeSendPacket);
+        esp8266_currentCmd = ESP8266_CMD_WRITESOCK_DATA;
+       break;
     }
 }
 
@@ -890,17 +918,27 @@ void esp8266_write_socket(uint8_t sock, char *data, uint16_t size)
     buffer_achar(&esp8266_txBuff, ',');
     buffer_aint(&esp8266_txBuff, (int)size);
     buffer_astring(&esp8266_txBuff, "\r\n");
-
-    // send request
-    esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
-    esp8266_currentCmd = ESP8266_CMD_WRITESOCK_REQ;
-
+    if ( size > 2049 )
+    {
+         esp8266_currentCmd = ESP8266_CMD_ERROR;
+    }
+    else
+    {
+        memcpy(esp8266_sendData,data,size);
+        esp8266_sizeSendPacket = size ;
+        // send request
+        esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
+        esp8266_currentCmd = ESP8266_CMD_WRITESOCK_REQ;
+    }
+    esp8266_task();
+    /*
     while (esp8266_state != ESP8266_STATE_SEND_DATA) esp8266_task(); // TODO FIXME
     esp8266_state = ESP8266_STATE_NONE;
 
     esp8266_send_cmddat(data, size);
     esp8266_currentCmd = ESP8266_CMD_WRITESOCK_DATA;
     while (esp8266_state != ESP8266_STATE_SEND_OK) esp8266_task(); // TODO FIXME
+    */
 }
 
 /**
