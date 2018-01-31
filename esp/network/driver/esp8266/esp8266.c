@@ -178,7 +178,7 @@ void esp8266_init()
 void esp8266_task()
 {
     char esp8266_rxBuff[200];
-    ssize_t read_size;
+    ssize_t read_size,write_size;
 
     // read esp uart response and parse it
     read_size = uart_read(esp8266_uart, esp8266_rxBuff, 200);
@@ -250,6 +250,10 @@ void esp8266_task()
         {
             esp8266_currentCmd = ESP8266_CMD_NONE;
         }
+        else
+        {
+            esp8266_currentCmd = ESP8266_CMD_ERROR;
+        }
         break;
     case ESP8266_CMD_WRITESOCK_REQ:
         if (esp8266_state == ESP8266_STATE_SEND_OK)
@@ -258,11 +262,21 @@ void esp8266_task()
         }
         break;
     case ESP8266_CMD_WRITESOCK :
-        if ( size_Data_send > 0 )
+        if( size_Data_send == esp8266_sizeSendPacket )
         {
+           esp8266_currentCmd = ESP8266_CMD_WRITESOCK_DATA;
         }
-        size_Data_send += uart_write(esp8266_uart,esp8266_sendData, esp8266_sizeSendPacket);
-        esp8266_currentCmd = ESP8266_CMD_WRITESOCK_DATA;
+        write_size = uart_write(esp8266_uart,esp8266_sendData + size_Data_send,esp8266_sizeSendPacket-size_Data_send);
+        if(write_size < 0)
+        {
+            esp8266_currentCmd = ESP8266_CMD_ERROR;
+        }
+        else
+        {
+           size_Data_send += write_size;
+        }
+       break;
+    default :
        break;
     }
 }
