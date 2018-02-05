@@ -178,7 +178,7 @@ void esp8266_init()
 void esp8266_task()
 {
     char esp8266_rxBuff[200];
-    ssize_t read_size,write_size;
+    ssize_t read_size;
 
     // read esp uart response and parse it
     read_size = uart_read(esp8266_uart, esp8266_rxBuff, 200);
@@ -250,10 +250,6 @@ void esp8266_task()
         {
             esp8266_currentCmd = ESP8266_CMD_NONE;
         }
-        else
-        {
-            esp8266_currentCmd = ESP8266_CMD_ERROR;
-        }
         break;
     case ESP8266_CMD_WRITESOCK_REQ:
         if (esp8266_state == ESP8266_STATE_SEND_OK)
@@ -262,21 +258,11 @@ void esp8266_task()
         }
         break;
     case ESP8266_CMD_WRITESOCK :
-        if( size_Data_send == esp8266_sizeSendPacket )
+        if ( size_Data_send > 0 )
         {
-           esp8266_currentCmd = ESP8266_CMD_WRITESOCK_DATA;
         }
-        write_size = uart_write(esp8266_uart,esp8266_sendData + size_Data_send,esp8266_sizeSendPacket-size_Data_send);
-        if(write_size < 0)
-        {
-            esp8266_currentCmd = ESP8266_CMD_ERROR;
-        }
-        else
-        {
-           size_Data_send += write_size;
-        }
-       break;
-    default :
+        size_Data_send += uart_write(esp8266_uart,esp8266_sendData, esp8266_sizeSendPacket);
+        esp8266_currentCmd = ESP8266_CMD_WRITESOCK_DATA;
        break;
     }
 }
@@ -760,9 +746,12 @@ void esp8266_send_cmddat(char data[], uint16_t size)
 uint8_t esp8266_open_tcp_socket(char *ip_domain, uint16_t port)
 {
     char protected[64];
-    if (esp8266_currentCmd == ESP8266_STATE_NONE)
+    if (esp8266_currentCmd != 0)
     { 
-        (&esp8266_txBuff);
+        return -1;
+    }
+    else
+        buffer_clear(&esp8266_txBuff);
         buffer_astring(&esp8266_txBuff, "AT+CIPSTART=\"TCP\",\"");
 
         esp8266_protectstr(protected, ip_domain);
@@ -773,9 +762,6 @@ uint8_t esp8266_open_tcp_socket(char *ip_domain, uint16_t port)
         esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
         esp8266_currentCmd = ESP8266_CMD_OPENTCP;
         return 0;
-    }
-    else
-        return -1;
 }
 
 /**
@@ -789,8 +775,11 @@ uint8_t esp8266_open_udp_socket(char *ip_domain, uint16_t port,
                                 uint16_t localPort)
 {
     char protected[64];
-    if (esp8266_currentCmd == ESP8266_STATE_NONE)
+    if (esp8266_currentCmd !=0)
     { 
+        return -1;
+    }
+    else
         buffer_clear(&esp8266_txBuff);
         buffer_astring(&esp8266_txBuff, "AT+CIPSTART=\"UDP\",\"");
 
@@ -803,10 +792,7 @@ uint8_t esp8266_open_udp_socket(char *ip_domain, uint16_t port,
 
         esp8266_send_cmddat(esp8266_txBuff.data, esp8266_txBuff.size);
         esp8266_currentCmd = ESP8266_CMD_OPENUDP;
-        return 0;
-    }
-    else
-        return -1;
+        return -0;
 }
 
 /**
