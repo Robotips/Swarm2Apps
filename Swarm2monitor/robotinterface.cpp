@@ -50,6 +50,9 @@ void RobotInterface::replyErrorHandler(QNetworkReply::NetworkError code)
         //qDebug() << "Error :" + reply->errorString();
         isError = true;
         refLogWidget->addLog("Error : "+reply->errorString(), LogWidget::LogColor::RED);
+
+        reply->deleteLater();
+        reply = Q_NULLPTR;
     }
 }
 

@@ -17,6 +17,8 @@
 #include "robotinterface.h"
 #include "speedometer/qcgaugewidget.h"
 #include "colorWheel/colorwheel.h"
+#include "controller/robot.h"
+#include "controller/swarm2tipsInterface.h"
 
 
 
@@ -49,10 +51,13 @@ class MainWindow : public QMainWindow
         void updateTofValues(int tof1, int tof2, int tof3);
         void updateBatValues(int bat);
 
+        void updateUiWithSensorData(Swarm2tipsInterface::Sensor sensorId);
+
     private:
         UserData *userDataRef;
 
         RobotInterface robotInterface;
+        Robot robot;
 
         QMenu *option;
         QMenu *view;

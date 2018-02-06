@@ -50,7 +50,7 @@ LogWidget::~LogWidget()
 
 void LogWidget::addLog(QString const &log, LogColor color)
 {
-    QLabel *logLine = new QLabel(addColorToLog(log, color));
+    QLabel *logLine = new QLabel(addColorToLog(QTime::currentTime().toString("hh:mm:ss.zzz")+" : "+log, color));
     logLine->setFixedHeight(15);
     labelPointerVector.push_back(logLine);
     labelVBox->addWidget(logLine, 0,Qt::AlignTop);

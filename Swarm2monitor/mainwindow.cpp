@@ -1,7 +1,11 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(UserData *userData, QWidget *parent) : QMainWindow(parent), robotInterface(userData->getIpAddr(), userData->getPort(), 250)
+MainWindow::MainWindow(UserData *userData, QWidget *parent) : QMainWindow(parent), robotInterface(userData->getIpAddr(), userData->getPort(), 250), robot(Robot::RobotType::Swarm2tips, userData->getIpAddr(), userData->getPort(),200)
 {
+    //robot.startDataAcquisition();
+    QObject::connect(&robot, SIGNAL(newDataAvailable(Swarm2tipsInterface::Sensor)), this, SLOT(updateUiWithSensorData(Swarm2tipsInterface::Sensor)));
+    /*************************************************************/
+
     userDataRef = userData;
 
     settingsDialog = new SettingsDialog(this);
@@ -29,6 +33,9 @@ void MainWindow::createSettingsDialog()
 {
     QTabWidget *ref = settingsDialog->addCategory(tr("Robot configuration"));
     ref->addTab(new RobotIpModal(userDataRef,settingsDialog),tr("Robot ip adress"));
+
+    ref = settingsDialog->addCategory(tr("Software configuration"));
+    ref->addTab(new QLabel(tr("Comming soon")),tr("Sensor update time"));
 }
 
 void MainWindow::createInfoSection()
@@ -262,13 +269,13 @@ void MainWindow::aboutFunc()
 and is comming without any warranty of all kind<br>\
 <br>Credits:<br>- The SpeedGauge was taken from (this is not my work) : <a href='https://github.com/Berrima/Qt-custom-gauge-widget/tree/master/examples/SpeedGauge'>https://github.com/Berrima/Qt-custom-gauge-widget/tree/master/examples/SpeedGauge</a><br>\
 - The circle color picker was taken from (this is not my work) : <a href='https://github.com/liuyanghejerry/Qt-Plus'>https://github.com/liuyanghejerry/Qt-Plus</a><br>\
-25/12/2017"));
+25/12/2017<br>Last update : 06/02/2018"));
 }
 
 void MainWindow::connectToRobot()
 {
     //qDebug() << "Connecter";
-    if(!robotInterface.isConnected())
+    /*if(!robotInterface.isConnected())
     {
         logWidget->addLog("Connecting to " + userDataRef->getIpAddrWithPort() + " ...", LogWidget::LogColor::BLUE);
         //We connect the signals
@@ -285,6 +292,17 @@ void MainWindow::connectToRobot()
         connectButton->setStyleSheet("color : black;");
 
         logWidget->addLog("Disconnected", LogWidget::LogColor::ORANGE);
+    }*/
+
+    if(!robot.isAcquiring())
+    {
+        robot.startDataAcquisition();
+        logWidget->addLog("Sensor data acquisition started", LogWidget::LogColor::GREEN);
+    }
+    else
+    {
+        robot.stopDataAcquisition();
+        logWidget->addLog("Sensor data acquisition stopped", LogWidget::LogColor::ORANGE);
     }
 }
 
@@ -382,4 +400,19 @@ void MainWindow::updateBatValues(int bat)
 void MainWindow::toTest(QColor color)
 {
     logWidget->addLog("Color picked : "+QString::number(color.red())+" "+QString::number(color.green())+" "+QString::number(color.blue()),  LogWidget::LogColor::GREY);
+}
+
+void MainWindow::updateUiWithSensorData(Swarm2tipsInterface::Sensor sensorId)
+{
+    switch(sensorId)
+    {
+    case Swarm2tipsInterface::Sensor::Tofs:
+        this->tof1->display(robot.getSensorCollection()->last().tof1);
+        this->tof2->display(robot.getSensorCollection()->last().tof2);
+        this->tof3->display(robot.getSensorCollection()->last().tof3);
+        break;
+    case Swarm2tipsInterface::Sensor::BatteryLevel:
+        updateBatValues(robot.getSensorCollection()->last().batteryLevel);
+        break;
+    }
 }

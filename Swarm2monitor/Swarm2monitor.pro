@@ -34,7 +34,14 @@ SOURCES += main.cpp\
     robotinterface.cpp \
     speedometer/qcgaugewidget.cpp \
     colorWheel/colorwheel.cpp \
-    settingsdialog.cpp
+    settingsdialog.cpp \
+    apimanager.cpp \
+    controller/robot.cpp \
+    controller/comdriver.cpp \
+    controller/apiobject.cpp \
+    controller/swarm2tipsInterface.cpp \
+    controller/robotinterface2.cpp \
+    controller/apimanager2.cpp
 
 HEADERS  += mainwindow.h \
     robotipmodal.h \
@@ -44,7 +51,14 @@ HEADERS  += mainwindow.h \
     robotinterface.h \
     speedometer/qcgaugewidget.h \
     colorWheel/colorwheel.h \
-    settingsdialog.h
+    settingsdialog.h \
+    apimanager.h \
+    controller/robot.h \
+    controller/comdriver.h \
+    controller/apiobject.h \
+    controller/swarm2tipsInterface.h \
+    controller/robotinterface2.h \
+    controller/apimanager2.h
 
 TRANSLATIONS = translation_fr.ts
 
