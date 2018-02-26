@@ -68,6 +68,7 @@ void APIManager::replyErrorHandler(QNetworkReply::NetworkError code)
             emit networkErrorReceived("NETWORK_ERROR");
         }
 
+        qDebug()<< "Failed attempts :"+QString::number(failedApiRequest);
     }
 
 }
@@ -89,6 +90,9 @@ void APIManager::replyWithJsonHandler()
 {
     if(jsonReply != Q_NULLPTR)
     {
+        //We reset the fail counter here as well
+        failedApiRequest = 0;
+
         unsigned int sensorId = jsonReply->property("sensorId").toUInt();
 
         QByteArray jsonStringReply = jsonReply->readAll();

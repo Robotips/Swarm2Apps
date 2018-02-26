@@ -36,7 +36,7 @@ class APIManager : public ComDriver
     signals:
         void restAPIConnected();
         void jsonObjectReceived(QJsonObject obj, unsigned int sensorId);
-        void networkErrorReceived(QString error);
+        virtual void networkErrorReceived(QString error);
 
 };
 

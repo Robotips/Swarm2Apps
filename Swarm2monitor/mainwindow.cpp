@@ -2,8 +2,9 @@
 
 MainWindow::MainWindow(UserData *userData, QWidget *parent) : QMainWindow(parent), robot(Robot::RobotType::Swarm2tips, userData->getIpAddr(), userData->getPort(),200)
 {
-    //robot.startDataAcquisition();
     QObject::connect(&robot, SIGNAL(newDataAvailable(Swarm2tipsInterface::Sensor)), this, SLOT(updateUiWithSensorData(Swarm2tipsInterface::Sensor)));
+
+    QObject::connect(&robot, &Robot::robotConnectionErrorReceived, this, &MainWindow::robotConnectionErrorWarning);
     /*************************************************************/
 
     userDataRef = userData;
@@ -310,18 +311,20 @@ void MainWindow::connectToRobot()
     //qDebug() << "Connecter";
     if(!robot.isAcquiring())
     {
+        robot.startDataAcquisition();
+
         //We change the buttons state:
         changeConnectButton(robot.isAcquiring());
 
-        robot.startDataAcquisition();
         logWidget->addLog("Sensor data acquisition started", LogWidget::LogColor::GREEN);
     }
     else
     {
+        robot.stopDataAcquisition();
+
         //We change the buttons state:
         changeConnectButton(robot.isAcquiring());
 
-        robot.stopDataAcquisition();
         logWidget->addLog("Sensor data acquisition stopped", LogWidget::LogColor::ORANGE);
     }
 }
@@ -329,7 +332,7 @@ void MainWindow::connectToRobot()
 //Change button title and color
 void MainWindow::changeConnectButton(bool state)
 {
-    if(!state)
+    if(state)
     {
         connectButton->setText(tr("&Stop"));
         connectButton->setStyleSheet("color : red;");
@@ -443,4 +446,12 @@ void MainWindow::updateUiWithSensorData(Swarm2tipsInterface::Sensor sensorId)
         updateBatValues(robot.getSensorCollection()->last().batteryLevel);
         break;
     }
+}
+
+//This slot allow us to notify the user when the connection to the robot is lost
+void MainWindow::robotConnectionErrorWarning()
+{
+    //We change the buttons state:
+    changeConnectButton(robot.isAcquiring());
+    logWidget->addLog("Connection to the robot is lost", LogWidget::LogColor::RED);
 }

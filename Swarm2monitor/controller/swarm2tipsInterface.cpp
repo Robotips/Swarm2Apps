@@ -12,7 +12,6 @@ Swarm2tipsInterface::Swarm2tipsInterface(const QString &ipAddress, const unsigne
 
     QObject::connect(comDriver, SIGNAL(jsonObjectReceived(QJsonObject,uint)), this, SLOT(retrieveFilterSensorData(QJsonObject,uint)));
     //We connect as well slots to handle network errors
-    //QObject::connect(comDriver, SIGNAL(networkErrorReceived(QString)) , this, SLOT(comDriverErrorHandler(QString)));
     QObject::connect((APIManager*)comDriver, &APIManager::networkErrorReceived , this, &Swarm2tipsInterface::comDriverErrorHandler);
 }
 
@@ -68,6 +67,8 @@ void Swarm2tipsInterface::makeAPIRequest()
 void Swarm2tipsInterface::comDriverErrorHandler(QString error)
 {
     qDebug()<<"Network error : "+error;
+    //We then emit an other signal
+    emit robotConnectionErrorReceived();
 }
 
 void Swarm2tipsInterface::retrieveFilterSensorData(QJsonObject obj, unsigned int sensorId)

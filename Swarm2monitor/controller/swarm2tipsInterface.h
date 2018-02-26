@@ -23,8 +23,7 @@ class Swarm2tipsInterface : public RobotInterface
 
     signals:
         void sensorDataAvailable(unsigned int sensorId, float x, float xx, float xxx);
-
-
+        virtual void robotConnectionErrorReceived();
 };
 
 #endif // SWARM_H

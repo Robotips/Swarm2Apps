@@ -52,6 +52,8 @@ class MainWindow : public QMainWindow
 
         void updateUiWithSensorData(Swarm2tipsInterface::Sensor sensorId);
 
+        void robotConnectionErrorWarning();
+
     private:
         UserData *userDataRef;
 

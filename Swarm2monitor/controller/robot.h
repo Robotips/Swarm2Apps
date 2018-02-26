@@ -65,8 +65,11 @@ class Robot : public QObject
 
         void addSensorDataToHistory(unsigned int sensorId, float x, float xx, float xxx);
 
+        void robotConnectionErrorHandler();
+
      signals:
         void newDataAvailable(Swarm2tipsInterface::Sensor);
+        void robotConnectionErrorReceived();
 
      public:
         QList<SensorData> *getSensorCollection();

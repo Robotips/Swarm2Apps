@@ -11,6 +11,9 @@ Robot::Robot(RobotType type, const QString &ipAddress, const unsigned int &port,
         break;
     case RobotType::Swarm2tips:
         robotInterface = new Swarm2tipsInterface(robotIp, robotPort);
+
+        //We connect the slot to handle connection errors
+        QObject::connect((Swarm2tipsInterface*)robotInterface, &Swarm2tipsInterface::robotConnectionErrorReceived, this, &Robot::robotConnectionErrorHandler);
         break;
     default:
         robotInterface = nullptr;
@@ -34,6 +37,15 @@ void Robot::stopDataAcquisition()
 {
     acquiring = false;
     sensorUpdateTimer.stop();
+}
+
+void Robot::robotConnectionErrorHandler()
+{
+    //If we receive a connection error we stop the data aquisition
+    acquiring = false;
+    sensorUpdateTimer.stop();
+
+    emit robotConnectionErrorReceived();
 }
 
 void Robot::robotApiRequest()

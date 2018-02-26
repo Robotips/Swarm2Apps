@@ -20,6 +20,9 @@ class RobotInterface : public QObject
         ComDriver *comDriver;
 
     private:
+
+    signals:
+        virtual void robotConnectionErrorReceived() = 0;
 };
 
 #endif // ROBOTINTERFACE2_H
