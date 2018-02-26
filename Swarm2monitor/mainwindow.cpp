@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(UserData *userData, QWidget *parent) : QMainWindow(parent), robotInterface(userData->getIpAddr(), userData->getPort(), 250), robot(Robot::RobotType::Swarm2tips, userData->getIpAddr(), userData->getPort(),200)
+MainWindow::MainWindow(UserData *userData, QWidget *parent) : QMainWindow(parent), robot(Robot::RobotType::Swarm2tips, userData->getIpAddr(), userData->getPort(),200)
 {
     //robot.startDataAcquisition();
     QObject::connect(&robot, SIGNAL(newDataAvailable(Swarm2tipsInterface::Sensor)), this, SLOT(updateUiWithSensorData(Swarm2tipsInterface::Sensor)));
@@ -12,7 +12,6 @@ MainWindow::MainWindow(UserData *userData, QWidget *parent) : QMainWindow(parent
     createSettingsDialog();
 
     createInfoSection();
-    robotInterface.setStdr(logWidget);
     createActionSection();
 
     createActions();
@@ -45,7 +44,7 @@ void MainWindow::createInfoSection()
     titreFont1.setPointSize(25);
     infoLabel->setFont(titreFont1);
 
-    connectButton = new QPushButton(tr("&Connect"), this);
+    connectButton = new QPushButton(tr("&Start"), this);
 
     voltageLabel = new QLabel(tr("Voltage(V) :"));
     voltage = new QLCDNumber(this);
@@ -102,16 +101,50 @@ void MainWindow::createInfoSection()
     mSpeedGauge->addBackground(7);
     mSpeedGauge->addGlass(88);
 
+    //speedoMeter wheel two
+    speedLabel2 = new QLabel(tr("Wheel 2 rotation speed :"));
+
+    mSpeedGauge2 = new QcGaugeWidget;
+    mSpeedGauge2->setFixedSize(125,125);
+    mSpeedGauge2->addBackground(99);
+    QcBackgroundItem *bkg3 = mSpeedGauge2->addBackground(92);
+    bkg3->clearrColors();
+    bkg3->addColor(0.1,Qt::black);
+    bkg3->addColor(1.0,Qt::white);
+
+    QcBackgroundItem *bkg4 = mSpeedGauge2->addBackground(88);
+    bkg4->clearrColors();
+    bkg4->addColor(0.1,Qt::gray);
+    bkg4->addColor(1.0,Qt::darkGray);
+
+    mSpeedGauge2->addArc(55);
+    mSpeedGauge2->addDegrees(65)->setValueRange(0,50);
+    mSpeedGauge2->addColorBand(50);
+
+    mSpeedGauge2->addValues(80)->setValueRange(0,50);
+
+    mSpeedGauge2->addLabel(70)->setText("Tr/min");
+    QcLabelItem *lab1 = mSpeedGauge2->addLabel(40);
+    lab1->setText("0");
+    mSpeedNeedle2 = mSpeedGauge2->addNeedle(60);
+    mSpeedNeedle2->setLabel(lab1);
+    mSpeedNeedle2->setColor(Qt::white);
+    mSpeedNeedle2->setValueRange(0,50);
+    mSpeedGauge2->addBackground(7);
+    mSpeedGauge2->addGlass(88);
+
     tofGridLayout = new QGridLayout();
 
     tofGridLayout->addWidget(voltageLabel, 0, 0);
     tofGridLayout->addWidget(speedLabel, 0, 1);
+    tofGridLayout->addWidget(speedLabel2, 0, 2);
     tofGridLayout->addWidget(tof1Label, 2, 0);
     tofGridLayout->addWidget(tof2Label, 2, 1);
     tofGridLayout->addWidget(tof3Label, 2, 2);
 
     tofGridLayout->addWidget(voltage, 1, 0);
     tofGridLayout->addWidget(mSpeedGauge, 1, 1);
+    tofGridLayout->addWidget(mSpeedGauge2, 1, 2);
     tofGridLayout->addWidget(tof1, 3, 0);
     tofGridLayout->addWidget(tof2, 3, 1);
     tofGridLayout->addWidget(tof3, 3, 2);
@@ -259,7 +292,7 @@ void MainWindow::openSettingsSlot()
 {
     settingsDialog->exec();
     //We set new ipAdress for the robotInterface
-    robotInterface.setRobotIpAndPort(userDataRef->getIpAddr(), userDataRef->getPort());
+
 }
 
 void MainWindow::aboutFunc()
@@ -275,42 +308,37 @@ and is comming without any warranty of all kind<br>\
 void MainWindow::connectToRobot()
 {
     //qDebug() << "Connecter";
-    /*if(!robotInterface.isConnected())
-    {
-        logWidget->addLog("Connecting to " + userDataRef->getIpAddrWithPort() + " ...", LogWidget::LogColor::BLUE);
-        //We connect the signals
-        QObject::connect(&robotInterface, SIGNAL(robotConnected()), this, SLOT(changeConnectButton()));
-        QObject::connect(&robotInterface, SIGNAL(tofValuesReceived(int,int,int)), this, SLOT(updateTofValues(int, int, int)));
-        QObject::connect(&robotInterface, SIGNAL(batValuesReceived(int)), this, SLOT(updateBatValues(int)));
-        robotInterface.connect();
-    }
-    else
-    {
-        //We close the connection to the robot
-        robotInterface.disconnect();
-        connectButton->setText(tr("&Connect"));
-        connectButton->setStyleSheet("color : black;");
-
-        logWidget->addLog("Disconnected", LogWidget::LogColor::ORANGE);
-    }*/
-
     if(!robot.isAcquiring())
     {
+        //We change the buttons state:
+        changeConnectButton(robot.isAcquiring());
+
         robot.startDataAcquisition();
         logWidget->addLog("Sensor data acquisition started", LogWidget::LogColor::GREEN);
     }
     else
     {
+        //We change the buttons state:
+        changeConnectButton(robot.isAcquiring());
+
         robot.stopDataAcquisition();
         logWidget->addLog("Sensor data acquisition stopped", LogWidget::LogColor::ORANGE);
     }
 }
 
 //Change button title and color
-void MainWindow::changeConnectButton()
+void MainWindow::changeConnectButton(bool state)
 {
-    connectButton->setText(tr("&Disconnect"));
-    connectButton->setStyleSheet("color : red;");
+    if(!state)
+    {
+        connectButton->setText(tr("&Stop"));
+        connectButton->setStyleSheet("color : red;");
+    }
+    else
+    {
+        connectButton->setText(tr("&Start"));
+        connectButton->setStyleSheet("color : black;");
+    }
 }
 
 //Movement methods

@@ -31,34 +31,30 @@ SOURCES += main.cpp\
     userdata.cpp \
     dataserializerunserializer.cpp \
     logwidget.cpp \
-    robotinterface.cpp \
     speedometer/qcgaugewidget.cpp \
     colorWheel/colorwheel.cpp \
     settingsdialog.cpp \
-    apimanager.cpp \
     controller/robot.cpp \
     controller/comdriver.cpp \
     controller/apiobject.cpp \
     controller/swarm2tipsInterface.cpp \
-    controller/robotinterface2.cpp \
-    controller/apimanager2.cpp
+    controller/apimanager.cpp \
+    controller/robotinterface.cpp
 
 HEADERS  += mainwindow.h \
     robotipmodal.h \
     userdata.h \
     dataserializerunserializer.h \
     logwidget.h \
-    robotinterface.h \
     speedometer/qcgaugewidget.h \
     colorWheel/colorwheel.h \
     settingsdialog.h \
-    apimanager.h \
     controller/robot.h \
     controller/comdriver.h \
     controller/apiobject.h \
     controller/swarm2tipsInterface.h \
-    controller/robotinterface2.h \
-    controller/apimanager2.h
+    controller/robotinterface.h \
+    controller/apimanager.h
 
 TRANSLATIONS = translation_fr.ts
 

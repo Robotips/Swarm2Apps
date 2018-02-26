@@ -2,10 +2,10 @@
 #define SWARM_H
 #include <QtWidgets>
 
-#include "controller/robotinterface2.h"
-#include "controller/apimanager2.h"
+#include "controller/robotinterface.h"
+#include "controller/apimanager.h"
 
-class Swarm2tipsInterface : public RobotInterface2
+class Swarm2tipsInterface : public RobotInterface
 {
     Q_OBJECT
 
@@ -19,6 +19,7 @@ class Swarm2tipsInterface : public RobotInterface2
 
     private slots:
         void retrieveFilterSensorData(QJsonObject obj, unsigned int sensorId);
+        void comDriverErrorHandler(QString error);
 
     signals:
         void sensorDataAvailable(unsigned int sensorId, float x, float xx, float xxx);

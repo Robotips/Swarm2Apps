@@ -14,7 +14,6 @@
 #include "settingsdialog.h"
 #include "userdata.h"
 #include "logwidget.h"
-#include "robotinterface.h"
 #include "speedometer/qcgaugewidget.h"
 #include "colorWheel/colorwheel.h"
 #include "controller/robot.h"
@@ -35,7 +34,7 @@ class MainWindow : public QMainWindow
         void aboutFunc();
         void connectToRobot();
 
-        void changeConnectButton();
+        void changeConnectButton(bool state);
 
         void toTest(QColor color);
 
@@ -56,7 +55,6 @@ class MainWindow : public QMainWindow
     private:
         UserData *userDataRef;
 
-        RobotInterface robotInterface;
         Robot robot;
 
         QMenu *option;
@@ -109,11 +107,18 @@ class MainWindow : public QMainWindow
 
 
         LogWidget *logWidget;
-        //Speed meter widget
+        //Speed meter widget 1
         QLabel *speedLabel;
 
         QcGaugeWidget * mSpeedGauge;
         QcNeedleItem *mSpeedNeedle;
+
+
+        //Speed meter widget 2
+        QLabel *speedLabel2;
+
+        QcGaugeWidget * mSpeedGauge2;
+        QcNeedleItem *mSpeedNeedle2;
 
         //Widgets for the action section
         QPushButton *forward;

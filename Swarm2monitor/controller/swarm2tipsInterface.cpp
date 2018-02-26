@@ -1,9 +1,9 @@
 #include "swarm2tipsInterface.h"
 
-Swarm2tipsInterface::Swarm2tipsInterface(const QString &ipAddress, const unsigned int &port, QObject *parent) : RobotInterface2(ipAddress, port, parent)
+Swarm2tipsInterface::Swarm2tipsInterface(const QString &ipAddress, const unsigned int &port, QObject *parent) : RobotInterface(ipAddress, port, parent)
 {
     //We load the proper driver for the api requests:
-    comDriver = new APIManager2(ipAddress, port);
+    comDriver = new APIManager(ipAddress, port);
 
     //We fill the map
     initializeSensorMap();
@@ -11,6 +11,9 @@ Swarm2tipsInterface::Swarm2tipsInterface(const QString &ipAddress, const unsigne
     iterator = new QMapIterator<unsigned int, QString>(sensorMap);
 
     QObject::connect(comDriver, SIGNAL(jsonObjectReceived(QJsonObject,uint)), this, SLOT(retrieveFilterSensorData(QJsonObject,uint)));
+    //We connect as well slots to handle network errors
+    //QObject::connect(comDriver, SIGNAL(networkErrorReceived(QString)) , this, SLOT(comDriverErrorHandler(QString)));
+    QObject::connect((APIManager*)comDriver, &APIManager::networkErrorReceived , this, &Swarm2tipsInterface::comDriverErrorHandler);
 }
 
 void Swarm2tipsInterface::initializeSensorMap()
@@ -60,6 +63,11 @@ void Swarm2tipsInterface::makeAPIRequest()
     }
     else
        qDebug()<<"No sensor for this robot";
+}
+
+void Swarm2tipsInterface::comDriverErrorHandler(QString error)
+{
+    qDebug()<<"Network error : "+error;
 }
 
 void Swarm2tipsInterface::retrieveFilterSensorData(QJsonObject obj, unsigned int sensorId)

@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QtWidgets>
 #include "controller/swarm2tipsInterface.h"
-#include "controller/robotinterface2.h"
+#include "controller/robotinterface.h"
 
 class Robot : public QObject
 {
@@ -29,7 +29,7 @@ class Robot : public QObject
 
     private:
         QTimer sensorUpdateTimer;
-        RobotInterface2 *robotInterface;
+        RobotInterface *robotInterface;
 
         QString robotIp;
         unsigned int robotPort;
