@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "modules.h"
 #include "board.h"
@@ -25,15 +26,25 @@ void clearScreen()
 int main(void)
 {
     uint16_t i;
-    char buffer[100];
-    char bufferB[100];
-    char bufferT[100];
+    char sensorValues[100];
+	char buffDisp[3][10];
     rt_dev_t uartDbg;
     rt_dev_t i2c_bus;
     int16_t acc[3];
     int16_t gyro[3];
 
-    board_init();
+    // uart init 
+    rt_dev_t pl2303_uart;
+    uint16_t byte_read;
+	
+	board_init();
+	
+    pl2303_uart = uart(4);
+    uart_open(pl2303_uart);
+    uart_setBaudSpeed(pl2303_uart, 250000);
+    uart_setBitConfig(pl2303_uart, 8, UART_BIT_PARITY_NONE, 1);
+    uart_enable(pl2303_uart);
+
     //sysclock_setClock(200000000);
     //board_setLed(1, 1);
 
@@ -79,6 +90,8 @@ int main(void)
     i2c_writereg(i2c_bus, 0xD6, LSM6DS3_CTRL1_XL, 0b00100000, 0); //Accel
     i2c_writereg(i2c_bus, 0xD6, LSM6DS3_CTRL2_G,  0b00100000, 0); //Gyro
 
+
+
     while(1)
     {
         #ifdef SIMULATOR
@@ -87,22 +100,26 @@ int main(void)
         
         cmdline_task();
 
-        board_toggleLed(2);
-        for(i=0; i<65000; i++);
+        /*board_toggleLed(2);
+        for(i=0; i<65000; i++);*/
 
 	    i2c_readregs(i2c_bus, 0xD6, LSM6DS3_OUTX_L_XL, (uint8_t*)acc, 6, 0); //accelerometer
         i2c_readregs(i2c_bus, 0xD6, LSM6DS3_OUTX_L_G, (uint8_t*)gyro, 6, 0); //Gyro
 
 		//write the value of the acc/gyro in buffer's variables
-		sprintf(buffer, "X : %d", gyro[0]);  //Axe x
-		sprintf(bufferB, "Y : %d", gyro[1]); //Axe y
-		sprintf(bufferT, "Z : %d", gyro[2]); //Axe z
+		sprintf(buffDisp[0], "X : %d", (int)gyro[0]);  //Axe x
+		sprintf(buffDisp[1], "Y : %d", (int)gyro[1]); //Axe y
+		sprintf(buffDisp[2], "Z : %d", (int)gyro[2]); //Axe z
+		
+		sprintf(sensorValues, "%d,%d,%d,%d,%d,%d\n",(int)acc[0], (int)*(acc+1), (int)*(acc+2), (int)gyro[0], (int)gyro[1], (int)gyro[2]);  //Axe x y z
 
 		//write on the screen the values
-		gui_drawTextRect(0, 10, 120, 20, buffer, 0);
-		gui_drawTextRect(0, 25, 120, 20, bufferB, 0);
-		gui_drawTextRect(0, 40, 120, 20, bufferT, 0);
+		gui_drawTextRect(0, 10, 120, 20, buffDisp[0], 0);
+		gui_drawTextRect(0, 25, 120, 20, buffDisp[1], 0);
+		gui_drawTextRect(0, 40, 120, 20, buffDisp[2], 0);
 
+		uart_write(pl2303_uart,sensorValues,strlen(sensorValues));
+		
 		gui_ctrl_update();
     }
 

@@ -1,4 +1,4 @@
-RTPROG = ../rtprog
+RTPROG = ../../rtprog
 
 DEV_PROG = PK3
 PROJECT = testAccelero
