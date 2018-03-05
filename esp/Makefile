@@ -2,7 +2,7 @@ RTPROG = ../rtprog
 
 PROJECT = esp
 BOARD = swarmtips2
-DRIVERS += uart
+DRIVERS += uart pwm oc
 
 # CCFLAGS += -pedantic
 
