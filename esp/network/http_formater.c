@@ -12,6 +12,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void http_write_header_code(char *buffer, int result_code)
 {
@@ -49,4 +50,28 @@ void http_write_content_lenght(char *buffer, unsigned int content_lenght)
 void http_write_header_end(char *buffer)
 {
     strcat(buffer, "\r\n");
+}
+
+int http_parse_value_post(const char * chaine , char * occurence,char *buffer)
+{
+	int elements=0;
+    int taille=0;
+    char values[25] = " ";
+
+    while(sscanf(chaine+taille,occurence,values)!=0)
+    {
+         taille += strlen(values);
+
+       if(taille <= strlen(chaine))
+        {
+            strcat(buffer,strcat(values," "));
+            taille+=1;
+            elements++;
+        }
+        else
+        {
+            return elements ;
+        }
+    }
+    return elements ;
 }

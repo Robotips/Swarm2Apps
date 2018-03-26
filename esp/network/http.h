@@ -35,6 +35,7 @@ typedef struct
 void http_parse_init(HTTP_PARSER *parser, char *querry_str);
 HTTP_QUERRY_TYPE http_parse_querry(HTTP_PARSER *parser, char *url);
 int http_parse_field(HTTP_PARSER *parser, char *name, char *value);
+int http_parse_value_post(const char * chaine , char * occurence,char *buffer);
 
 // http formater
 enum {
